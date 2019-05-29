@@ -35,7 +35,7 @@ jobs:
     docker:
       - image: archlinux/base
     steps:
-      - run: pacman --noconfirm --needed -Sy jq grep awk sed
+      - run: pacman --noconfirm --needed -Sy jq grep awk sed inetutils
       - checkout
       - run: ./flush-configs.sh
 
