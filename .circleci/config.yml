@@ -30,8 +30,24 @@ jobs:
             cp etude-financiere.pdf /Documents;
       - store_artifacts:
           path: /Documents/etude-financiere.pdf
+  flush-configs:
+    context: GNS3-ARTEFAKT
+    docker:
+      - image: archlinux/base
+    steps:
+      - restore_cache:
+          keys:
+            - arch-depts
+      - run: pacman -S --needded jq
+      - save_cache:
+          key: arch-depts
+      - checkout
+
 workflows:
   version: 2
-  build-deploy:
+  build-docs:
     jobs:
       - build-docs
+  flush-configs:
+    jobs:
+      - flush-configs
