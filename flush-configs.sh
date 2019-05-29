@@ -54,7 +54,7 @@ for file in $FILES ; do
 		printf "\n"
 		sleep 0.05
 		printf $'\cz'
-	) | telnet | awk "/! FLUSHING ON $NODENAME \($FLUSHID\) !/,0" | grep -B5 -A2 "^%")
+	) | telnet 2> /dev/null | awk "/! FLUSHING ON $NODENAME \($FLUSHID\) !/,0" | grep -B5 -A2 "^%")
 
 	if [ ! $(echo "$result" | sed '/^\s*$/d' | wc -l) -eq 0 ]; then
 		echo "$result"
