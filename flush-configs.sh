@@ -47,11 +47,11 @@ for file in $FILES ; do
 		printf "\n\n\n! FLUSHING ON $NODENAME ($FLUSHID) !\n\n\n" | tr "\n" "\r\n"
 		printf $'\cz'
 		sleep 0.05
-		cat "$file" | iconv -c -t ascii | while read line; do
+		( cat "$file" && printf "\n" ) | iconv -c -t ascii | while read line; do
 			echo "$line" | tr "\n" "\r\n"
 			sleep 0.1
 		done
-		printf "\n"
+		printf "\r\n"
 		sleep 0.05
 		printf $'\cz'
 	) | telnet 2> /dev/null | awk "/! FLUSHING ON $NODENAME \($FLUSHID\) !/,0" | grep -B5 -A2 "^%")
