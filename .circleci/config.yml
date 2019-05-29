@@ -35,7 +35,7 @@ jobs:
     docker:
       - image: archlinux/base
     steps:
-      - run: pacman --noconfirm -Syy jq
+      - run: pacman --noconfirm -Syy jq grep
       - checkout
       - run: ./flush-configs.sh
 
