@@ -8,6 +8,6 @@
 
 * `network` : L'ensemble des configurations CISCO des routeurs de la topologie
   * `*.cfg` : Configuration d'un routeur
-* `dossier-recpitulatif` : Les fichiers source LaTeX du dossier recapitulatif
+* `dossier-recapitulatif` : Les fichiers source LaTeX du dossier recapitulatif
 * `dossier-configuration` : Les fichiers source LaTeX du dossier de configuration
 * `etude-financiere` : Les fichiers source LaTeX de l'étude financière

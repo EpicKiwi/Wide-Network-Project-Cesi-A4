@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  build-docs:
+    docker:
+      - image: raabf/latex-versions:texlive2018
+    steps:
+      - checkout
+      - run: mkdir /Documents
+      - run:
+          name: "Build: Dossier de configuration"
+          command: |
+            cd dossier-configuration;
+            pdflatex -interaction=nonstopmode dossier-configuration.tex;
+            cp dossier-configuration.pdf /Documents;
+      - store_artifacts:
+          path: /Documents/dossier-configuration.pdf
+      - run:
+          name: "Build: Dossier récapitulatif"
+          command: |
+            cd dossier-recapitulatif;
+            pdflatex -interaction=nonstopmode dossier-recapitulatif.tex;
+            cp dossier-recapitulatif.pdf /Documents;
+      - store_artifacts:
+          path: /Documents/dossier-recapitulatif.pdf
+      - run:
+          name: "Build: Étude financière"
+          command: |
+            cd etude-financiere;
+            pdflatex -interaction=nonstopmode etude-financiere.tex;
+            cp etude-financiere.pdf /Documents;
+      - store_artifacts:
+          path: /Documents/etude-financiere.pdf
+        
