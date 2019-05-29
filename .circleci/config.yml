@@ -35,13 +35,9 @@ jobs:
     docker:
       - image: archlinux/base
     steps:
-      - restore_cache:
-          keys:
-            - arch-depts
-      - run: pacman -S --needded jq
-      - save_cache:
-          key: arch-depts
+      - run: pacman -S jq
       - checkout
+      - run: ./flush-configs.sh
 
 workflows:
   version: 2
