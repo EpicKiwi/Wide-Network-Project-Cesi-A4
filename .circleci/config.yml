@@ -30,4 +30,8 @@ jobs:
             cp etude-financiere.pdf /Documents;
       - store_artifacts:
           path: /Documents/etude-financiere.pdf
-        
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build-docs
