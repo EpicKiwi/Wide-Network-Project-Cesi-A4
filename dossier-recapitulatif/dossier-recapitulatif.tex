@@ -107,6 +107,8 @@ L'adressage des routeurs constituant le réseau s'est éfféctué sur la plage d
 
 Dans notre exemple restrein de 3 routeurs \spr a divisé le réseaux en sous réseaux suivants :
 
+\bigskip
+
 \begin{itemize}
 	\item \texttt{172.16.0.0/16}
 	\begin{itemize}
@@ -116,6 +118,8 @@ Dans notre exemple restrein de 3 routeurs \spr a divisé le réseaux en sous ré
 		\item D'autres réseaux \texttt{/30} peuvent être ajoutés lors de l'élargissement du réseau
 	\end{itemize}
 \end{itemize}
+
+\bigskip
 
 \subsection{Routage interne}
 
@@ -156,11 +160,15 @@ Les trois routeurs de la topologie étant dédié à l'acces par \tlr, ils sont 
 
 Ainsi notre AS 100 est constitué des routeurs suivants:
 
+\bigskip
+
 \begin{itemize}
 	\item NG-1 identifié par \texttt{172.16.128.1} relié à l'usine de production et à l'agence commerciale
 	\item NG-2 identifié par \texttt{172.16.128.1} relié à l'unité de stockage
 	\item NG-3 identifié par \texttt{172.16.128.2} relié à la direction générale et au routeur d'acces (voir \ref{acces-internet})
 \end{itemize}
+
+\bigskip
 
 \subsection{Acces à internet}
 \label{acces-internet}
@@ -178,9 +186,97 @@ Cet partie relate des différents protocols mis en place sur chacun des sites et
 
 \subsection{Topologie de base}
 
+Sur notre maquette, nous avons représenté les différents sites par un ensemble de 4 routeurs.
+Le routeur connecté au nuage \spr est nommé \emph{Front} est gère l'ensemble des communication entrantes et sortantes du site.
+Les communications internes passent par 3 autres routeurs connecté ensemble selon une topologie maillée.
+Ces routeur sont numérotés de 1 à 3 et leur emplacement est libre dans le site en fonction de la topologie interne de chaque site.
+En interne des sites, la connection Ethernet est privilegiée et présente sur l'ensemble du site.
+Cela permet une grande flexibilité sur les différents postes que l'on peux connecter à chaque routeur et apporte une solution de connectivité unique sur un site.
+La seul connexion fibrée en série est la connexion au routeur de \spr qui reste la plus importante et chargée puisqu'elle supporte l'ensemble des communication externe du site vers le nuage.
+
+\paragraph{Postes nomades} Les postes nomades sont des postes disposant de leur propre connectivité au réseau mondial internet a l'aide d'une clé 4G représentée sur la maquette par un routeur.
+Ces postes nomades ne sont pas directement connecté au nuage mais passent par un tunnel VPN de type IPSec configuré entre le routeur de la direction générale et leur propre poste.
+Cela leur permet un acces constant à l'intranet \tlr mais cela représente aussi une faille de sécurité dans le réseau de l'entreprise.
+Il convien de surveiller le traffic entrant et sortant des VPN plus que le retse du réseau.
+
+\paragraph{Bureaux de proximité} Les bureaux de proximité n'ont pas besoin d'une connexion au réseau commun de \tlr.
+Il n'ont acces qu'au réseau internet et peuvent utiliser tout les services éxposés par \tlr comme un extranet, un serveur de mails, etc.
+Les bureaux de proximité ont donc à leur disposition un routeur permettant l'adressage des différents postes (au travers d'un service DHCP) et le routage sur internet au travers d'un NAT.
+Aucun système VPN n'est envisagé pour les bureaux de proximité mais la configuration d'un tel système reste possible en cas de besoin.
+
+\clearpage
+
 \begin{figue}{img/telredor.pdf}
 	\caption{Maquette de topologie \tlr}
 \end{figue}
+
+\subsection{Adressage}
+
+Dans le cadre de la refonte du réseau de \tlr, l'ensemble de l'adressage de l'entreprise à été revu et harmonisé pour en dégager des sous-réseaux par site.
+Les réseaux de sites sont prévus pour supporter plus de 200000 appareils connectés sur pres de 20 sites possibles.
+
+L'adressage est basé sur l'adresse privée \texttt{10.0.0.0/16} offrant une grande liberté sur le nombre d'hotes possibles.
+Chaque site du nuage dispose d'un sous-réseau en \texttt{/14} ensuite divisé selon la topologie interne de chaque site.
+Cette topologie est laissée à la liberté de la DSI locale.
+Un espace réseau est toute fois réservé pour les communication Point-à-point entre routeurs au sein de chaque site.
+
+\bigskip
+
+\begin{description}
+	\item[Direction générale] \texttt{10.0.0.0/14} (262142 postes)
+	\begin{description}
+		\item[Acces VPN] \texttt{10.0.192.0/18} (16362 postes)
+		\item[Point-à-point] \texttt{10.3.254.0/24} (254 postes)
+	\end{description}
+	\item[Unité de stockage] \texttt{10.4.0.0/14} (262142 postes)
+	\begin{description}
+		\item[Point-à-point] \texttt{10.7.254.0/24} (254 postes)
+	\end{description}
+	\item[Agence commerciale] \texttt{10.8.0.0/14} (262142 postes)
+	\begin{description}
+		\item[Point-à-point] \texttt{10.11.254.0/24} (254 postes)
+	\end{description}
+	\item[Usine de production] \texttt{10.12.0.0/14} (262142 postes)
+	\begin{description}
+		\item[Point-à-point] \texttt{10.15.254.0/24} (254 postes)
+	\end{description}
+\end{description}
+
+\bigskip
+
+\paragraph{Bureaux de proximité} Les bureaux de proximité disposant de peux de poste et d'un acces isolé au réseau, il leur est attribué l'ensemble d'un réseau privé de type \texttt{192.168.0.0/16} offrant pres de 60000 postes disponibles.
+L'adressage automatique est éfféctué par le routeur lui même au travers d'un service DHCP Cisco.
+
+\paragraph{Postes nomades} Les postes nomades disposent de leur propre réseau isolé au travers de leur clé 4G mais ont acces au réseau internet \tlr au travers de VPN.
+Ces connexion VPN doivent disposer d'adresses et ces adresses sont prévues dans le plage d'adresse \texttt{10.0.192.0/18}.
+
+\subsection{Routage interne}
+
+Au cours des achats et implantations de \tlr en de nombreux emplacements, la topologie dispose aujourd'hui de nombreux protocols différents utilisé au sein de son réseau.
+L'objectif de l'harmonisation des réseaux de \tlr est d'unifier toute cette architecture autour d'un ensemble de protocols permettant une communication plus éfficace.
+Il n'est pas possible de revoir les protocols utilisés sur les sites en raison d'une trop grande dépendances des système d'information en place mais le maximum à été fait pour se diriger vers une harmonisation autours des protocoles normalisés et non-propriétaires tels que OSPF.
+
+\paragraph{Routage inter-site} Même si le nuage apporte déja un système de routage, il est nécéssaire d'avoir un protocol unique pour la communication entre les routeurs dit \emph{Front} et les routeurs du nuage \spr.
+Ces derniers ont été configurés par \spr selon la topologie de \tlr avec une zone OSPF définie par site.
+
+\paragraph{Routage intra-site} Les protocoles de routage au sein de chaque site reste inchangé pour le moment et les routes de l'ensemble du réseau sont redistribués.
+Ainsi, la direction générale dispose d'un routage statique, l'agence commerciale dispose d'un routage RIPv2, et l'unité de stockage d'un protocol EIGRP.
+Sul l'usine de production s'intègre à l'architecture OSPF mise en place sur le coeur de réseau.
+
+\subsection{Acces à internet}
+
+L'acces a internet des sites passe par un routeur d'acces mis a disposition par \spr et configuré par \tlr selon ses besoins.
+Ce routeur d'acces (Noté \texttt{ACC-IN} sur le schéma) permet à l'ensemble des sites de disposer d'un acces au réseau internet.
+Ce routeur utilise un NAT et surcharcharge l'adresses statique publique qu'il possède pour faire communiquer l'ensemble des sites sur internet.
+
+En cas d'une trop grande charge, il est possible de mettre en place un pool d'adresse pour répartir la charge sur de multiples adresses d'acces.
+
+\paragraph{Acces Direction générale}
+La direction générale dispose de sa propre connexion internet en mode NAT tout comme le routeur \texttt{ACC-IN}.
+Cet acces secondaire permet de décharger le routeur d'acces tout en mettant disposition des postes nomades un acces direct au VPN de \tlr.
+De plus cet acces ser aussi d'un acces de secours au réseau de la direction général en cas de rupture de lien avec les autres sites. Il est alors possible de mettre en place un VPN pour diriger le traffic au travers d'internet.
+
+\paragraph{Bureaux de proximité} Les bureaux de proximité disposent de leur propre adresse IP sur le réseau internet et communiquent avec celui-ci au travers d'un routeur NAT surchargeant cette adresses lors des connexions.
 
 \clearpage
 \section{Résumé de topologie : \spr}
@@ -189,6 +285,18 @@ Cet partie relate des différents protocols mis en place sur chacun des sites et
 	\caption{Maquette de topologie \spr}
 \end{figue}
 
+\subsection{Adressage}
+
+\begin{itemize}
+	\item \texttt{172.16.0.0/16}
+	\begin{itemize}
+		\item \texttt{172.16.0.0/30} Lien NG-1 à NG-3
+		\item \texttt{172.16.0.4/30} Lien NG-1 à NG-2
+		\item \texttt{172.16.0.8/30} Lien NG-2 à NG-3
+		\item D'autres réseaux \texttt{/30} peuvent être ajoutés lors de l'élargissement du réseau
+	\end{itemize}
+\end{itemize}
+
 \input{topology-spr}
 
 \section{Résumé de topologie : \tlr}
@@ -196,6 +304,32 @@ Cet partie relate des différents protocols mis en place sur chacun des sites et
 \begin{figue}{img/telredor.pdf}
 	\caption{Maquette de topologie \tlr}
 \end{figue}
+
+\subsection{Adressage général}
+
+\begin{description}
+	\item[Réseau \tlr] \texttt{10.0.0.0/8}
+	\begin{description}
+		\item[Direction générale] \texttt{10.0.0.0/14} (262142 postes)
+		\begin{description}
+			\item[Acces VPN] \texttt{10.0.192.0/18} (16362 postes)
+			\item[Point-à-point] \texttt{10.3.254.0/24} (254 postes)
+		\end{description}
+		\item[Unité de stockage] \texttt{10.4.0.0/14} (262142 postes)
+		\begin{description}
+			\item[Point-à-point] \texttt{10.7.254.0/24} (254 postes)
+		\end{description}
+		\item[Agence commerciale] \texttt{10.8.0.0/14} (262142 postes)
+		\begin{description}
+			\item[Point-à-point] \texttt{10.11.254.0/24} (254 postes)
+		\end{description}
+		\item[Usine de production] \texttt{10.12.0.0/14} (262142 postes)
+		\begin{description}
+			\item[Point-à-point] \texttt{10.15.254.0/24} (254 postes)
+		\end{description}
+	\end{description}
+	\item[Bureau de proximité] \texttt{192.168.0.0/16} (65534 postes)
+\end{description}
 
 \subsection{Direction générale}
 
