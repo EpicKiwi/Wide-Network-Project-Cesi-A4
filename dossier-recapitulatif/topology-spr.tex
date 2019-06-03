@@ -1,0 +1,83 @@
+\subsection{NG-1}
+
+	\begin{description}
+		\item[Loopback 0] Interface d'identification du routeur
+		\begin{description}
+			\item[IP] \texttt{172.16.128.1} (\texttt{255.255.255.255})
+		\end{description}
+
+		\item[Serial 0/0] Interface de liaison MPLS avec NG-2
+		\begin{description}
+			\item[IP] \texttt{172.16.0.1} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+		\end{description}
+
+		\item[Serial 0/1] Interface de liaison MPLS avec NG-3
+		\begin{description}
+			\item[IP] \texttt{172.16.0.5} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+		\end{description}
+
+		\item[Serial 0/3] Interface dédiée à Telredor liée avec L'usine de production
+		\begin{description}
+			\item[IP] \texttt{10.15.254.1} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+			\item[VRF Dédiée] vrf-telredor
+		\end{description}
+
+	\end{description}
+	\lstinputlisting[caption=Configuration de la machine NG-1]{../network/nuage-supra/NG-1.cfg}
+	\clearpage
+\subsection{NG-2}
+
+	\begin{description}
+		\item[Loopback 0] Interface d'identification du routeur
+		\begin{description}
+			\item[IP] \texttt{172.16.128.2} (\texttt{255.255.255.255})
+		\end{description}
+
+		\item[Serial 0/0] Interface de liaison MPLS avec NG-1
+		\begin{description}
+			\item[IP] \texttt{172.16.0.2} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+		\end{description}
+
+		\item[Serial 0/1] Interface de liaison MPLS avec NG-3
+		\begin{description}
+			\item[IP] \texttt{172.16.0.10} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+		\end{description}
+
+	\end{description}
+	\lstinputlisting[caption=Configuration de la machine NG-2]{../network/nuage-supra/NG-2.cfg}
+	\clearpage
+\subsection{NG-3}
+
+	\begin{description}
+		\item[Loopback 0] Interface d'identification du routeur
+		\begin{description}
+			\item[IP] \texttt{172.16.128.3} (\texttt{255.255.255.255})
+		\end{description}
+
+		\item[Serial 0/0] Interface de liaison MPLS avec NG-3
+		\begin{description}
+			\item[IP] \texttt{172.16.0.6} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+		\end{description}
+
+		\item[Serial 0/1] Interface de liaison MPLS avec NG-3
+		\begin{description}
+			\item[IP] \texttt{172.16.0.9} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+		\end{description}
+
+		\item[Serial 0/3] Interface dédiée à Telredor liée avec la direction générale
+		\begin{description}
+			\item[IP] \texttt{10.3.254.1} (\texttt{255.255.255.252})
+			\item[Encapsulation serie] ppp
+			\item[VRF Dédiée] vrf-telredor
+		\end{description}
+
+	\end{description}
+	\lstinputlisting[caption=Configuration de la machine NG-3]{../network/nuage-supra/NG-3.cfg}
+	\clearpage
