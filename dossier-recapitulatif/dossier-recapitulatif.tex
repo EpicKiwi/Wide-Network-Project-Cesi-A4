@@ -1,13 +1,220 @@
 \documentclass{article}
 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+%Chargement des packages
+\usepackage{graphicx}
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{amsfonts}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\lstset{literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\euro}}1
+}
+%paramètrage
+\lstset{basicstyle=\ttfamily\color{darkgray},
+		numbers=left,
+		frame=single,
+		breaklines=true,
+		stringstyle=\color{PineGreen},
+		commentstyle=\color{Tan},
+		keywordstyle=\bfseries\color{RedOrange},
+		inputencoding=utf8,
+    	extendedchars=true}
+
+\title{Mission Telredor-Supra : Dosser récapitulatif}
+\date{3 Juin 2019}
+\author{Clément \bsc{Boutin} \and Baptiste \bsc{Saclier}}
+
+\newenvironment{figue}[1]{
+	\par
+	\bigskip
+	\begin{figure}[h]
+	\begin{center}
+	  \includegraphics[width=0.9\textwidth]{#1}
+	\end{center}
+}{
+	\end{figure}
+	\bigskip
+}
+
+\newcommand{\tlr}{Telredor\xspace}
+\newcommand{\spr}{Supra Télécom\xspace}
+\newcommand{\flechevrf}{\includegraphics[scale=0.4]{img/lien-vrf-fleche}}
+
 \begin{document}
 
-\vfill
+\maketitle
 
 \begin{center}
-Ici : le dossier récapitulatif
+\rule{0.5\textwidth}{0.4pt}
 \end{center}
 
-\vfill
+\tableofcontents
+
+\section{Introduction}
+
+Ce document décrit l'ensemble de l'installation a grande échelle de \spr et de \tlr. 
+Dans une première partie, la topologie de chacune des entreprise est détaillée en donnant diverses informations sur chacun des protocols utilisés.
+Dans une seconde partie, l'ensemble des informations factuelles de la topologie est résumée de manière plus synthétique pour un acces rapide lors de la maintenance de l'architecture.
+L'ensemble des configurations de routeur est présent sur le repository du projet disponible à l'adress \url{https://github.com/EpicKiwi/Wide-Network-Project-Cesi-A4/tree/master/network}.
+
+\section{\spr}
+
+\spr est un fournisseur d'acces à internet créé en même temps que \tlr.
+Les deux entreprises on collaborées des leur début ce qui à permis une forte cohésion et synergie entre leurs technologies.
+Ajourd'hui dans le cadre de la démarche d'harmonisation de la communication numérique de \tlr, \spr entame une refonte de son réseau interne dans un objectif de moderniser leurs installation.
+
+Pour ce faire, Nous avons conçu une architecture basée sur les téchnologie MPLS, OSPF, BGP et VRF de Cisco.
+
+\subsection{Topologie de base}
+
+La maquette donnée montre un exemple de nuage qui donne une bonne idée de l'architecture adoptée pour la topologie de celui-ci.
+L'objectif étant de mettre en place une structure décentralisée et maillée pour répartir la charge des clients sur l'ensemble du réseau.
+Nous avons pris comme exemple sur cette maquette, une topologie maillée de 3 routeurs connectés ensemble par des liaisons série fibre pour une grande bande passante et une faible latence.
+Ces liaisons sont encapsulées suivant le protocol \texttt{ppp} pour assurer une plus grande flexibilité dans le cas de l'installation de machines non-cisco mais aussi pour profiter des protocoles d'authentification comme CHAP permettant d'authentifier le client désirant se connecter.
+Les routeurs sont liés entre eux par des réseaux reduits appartenant au réseau de \spr \texttt{172.16.0.0/16} (voir \emph{adressage}).
+
+\begin{figue}{img/nuage-supra.pdf}
+	\caption{Maquette de topologie \spr}
+\end{figue}
+
+\subsection{Adresssage}
+\label{adressage}
+
+L'adressage des routeurs constituant le réseau s'est éfféctué sur la plage d'adresses privée \texttt{172.16.0.0/16} qui est ensuite découpée en une myriade de sous-réseaux de masque \texttt{/30}.
+
+Dans notre exemple restrein de 3 routeurs \spr a divisé le réseaux en sous réseaux suivants :
+
+\begin{itemize}
+	\item \texttt{172.16.0.0/16}
+	\begin{itemize}
+		\item \texttt{172.16.0.0/30} Lien NG-1 à NG-3
+		\item \texttt{172.16.0.4/30} Lien NG-1 à NG-2
+		\item \texttt{172.16.0.8/30} Lien NG-2 à NG-3
+		\item D'autres réseaux \texttt{/30} peuvent être ajoutés lors de l'élargissement du réseau
+	\end{itemize}
+\end{itemize}
+
+\subsection{Routage interne}
+
+Pour le routage de l'ensemble des paquets du réseau, \spr a décidé d'utiliser le protocol ouvert OSPF pour garantir la compatibilité sur d'éventuels futurs routeurs non-Cisco.
+\spr à fait le choix de conserver sur la zone 0 l'ensemble du réseau principal et se reserve les autres zones pour d'éventuels réseaux d'entreprise ou de maintenance.
+Mais il est à considèrer que l'élargissement du réseau de \spr à une échelle international nécéssitera de repenser cette topologie et d'inclure des zones OSPF pour réduire la charge de calcul de l'ensemble des routeurs lors de la constitution des tables de routage.
+
+Les réseaux clients étant completement séparés du réseau de \spr par l'utilisation de VRF (Voir \ref{vrf}), l'entreprise peux changer l'adressage et le routage à sa guise sans que les clients n'en soient impactés.
+
+\subsection{VRF}
+\label{vrf}
+
+Les VRF (pour \emph{Virtual Routing and Forwarding}) est une technologie permettant de séparer complément le traffic d'un client du traffic interne de \spr.
+Cela passe par l'assignation des interfaces reliés au site du client (notées \flechevrf sur le schéma) a un même identifiant appelé \texttt{RD}.
+Ainsi, le client se connecte au réseau de \spr et dispose d'une liaison direct entre ces interface comme si elles étaient sur un même réseau.
+
+Dans le cas de la collaboration avec \tlr, \spr à mis en place la VRF nommée \texttt{vrf-telredor} ayant pour \texttt{RD} le numéro \texttt{65000:1}.
+Cette VRF permet de relier les sites les plus importants de \tlr comme la direction générale, l'unité de stockage, l'usine de production et l'agence commerciale.
+Grâce a cette VRF, \tlr dispose maintenant d'un unique réseau reliant tout les sites entre eux et permettant une communication plus fluide entre les différents pôles de l'entreprise. (Voir \emph{Dossier de configuration} pour la procedure permettant la configuration d'une nouvelle VRF)
+
+Cette technologie nécéssite la mis en place de deux protocols permettant ma diffusion de paquets : MPLS et BGP.
+
+\subsubsection{MPLS}
+
+MPLS est un protocol permettant de diriger les paquets suivant des labels.
+Ces labels sont définis sur demande et permettent de constituer des circuits virtuels permettant de relier chacun des sites de l'entreprise.
+\spr l'utilise avec son installation VRF pour mettre a disposition de ses clients un réseau de grande taille totalement isolé de son réseau interne et des autres clients de l'entreprise.
+
+\subsubsection{BGP}
+
+BGP est le protocol de routage permettant de transmettre et synchroniser les différents sites.
+Il est utilisé dans le cadre des VRF \spr pour l'échange de différentes routes internes à chaque VRF.
+Pour ce faire, \spr à défini un numéro de système autonome à chacun des ses clients qui l'identifira lors de la communication des routes.
+Chaque routeur membre d'un même système autonome BGP doit avoir un identifiant, cet identifiant est défini par l'interface de Loopback 0 de chaque routeur.
+
+Dans le cas de \tlr, \spr à choisi le numéro de système autonome \texttt{100}
+Les trois routeurs de la topologie étant dédié à l'acces par \tlr, ils sont mentionnés dans les voisins par leur identifiants.
+
+Ainsi notre AS 100 est constitué des routeurs suivants:
+
+\begin{itemize}
+	\item NG-1 identifié par \texttt{172.16.128.1} relié à l'usine de production et à l'agence commerciale
+	\item NG-2 identifié par \texttt{172.16.128.1} relié à l'unité de stockage
+	\item NG-3 identifié par \texttt{172.16.128.2} relié à la direction générale et au routeur d'acces (voir \ref{acces-internet})
+\end{itemize}
+
+\subsection{Acces à internet}
+\label{acces-internet}
+
+\spr n'inclus pas, de base l'acces à internet lors de la maise en place d'un réseau d'entreprise.
+Pour donner un acces à internet aux machines du groupe \tlr, \spr met a disposition un routeur managé loué par \tlr permettant un acces à internet au traver d'un NAS.
+Cette connexion dispose d'une IP statique \texttt{1.0.0.1} et ce routeur d'acces (nommé \texttt{ACC-IN}) propage une route par défaut sur le réseau.
+Plus d'informations sur ce routeur d'acces sont disponibles dans la section \ref{tlr-acces-internet}.
+
+\section{\tlr}
+
+\tlr est une entreprise internationnal désirant harmoniser son réseau.
+Pour ce faire il ont fait appel à \spr pour collaborer sur une nouvelle topolgie de réseau.
+Cet partie relate des différents protocols mis en place sur chacun des sites et des relations entretenus avec le nuage fournis par \spr.
+
+\subsection{Topologie de base}
+
+\begin{figue}{img/telredor.pdf}
+	\caption{Maquette de topologie \tlr}
+\end{figue}
+
+\clearpage
+\section{Résumé de topologie : \spr}
+
+\begin{figue}{img/nuage-supra.pdf}
+	\caption{Maquette de topologie \spr}
+\end{figue}
+
+\input{topology-spr}
+
+\section{Résumé de topologie : \tlr}
+
+\begin{figue}{img/telredor.pdf}
+	\caption{Maquette de topologie \tlr}
+\end{figue}
+
+\subsection{Direction générale}
+
+\input{topology-DG}
+
+\subsection{Agence Commerciale}
+
+\input{topology-AC}
+
+\subsection{Usine de Production}
+
+\input{topology-UP}
+
+\subsection{Unité de Stockage}
+
+\input{topology-US}
+
+\subsection{Bureaux de proximité}
+
+\input{topology-BP}
 
 \end{document}
