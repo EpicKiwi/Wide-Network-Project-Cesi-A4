@@ -51,7 +51,7 @@
 		inputencoding=utf8,
     	extendedchars=true}
 
-\title{Mission Telredor-Supra : Dosser de configuration}
+\title{Mission Telredor-Supra : Dossier de configuration}
 \date{3 Juin 2019}
 \author{Clément \bsc{Boutin} \and Baptiste \bsc{Saclier}}
 
@@ -227,13 +227,78 @@ router ospf 2
 
 \begin{lstlisting}[caption=Configuration d'un routeur "Front" avec RIPv2]
 ! Configuration d'un routage RIPv2 avec redistribution depuis OSPF
-ip route [Réseau cible] [Masque cible] [Adresse du voisin]
+router rip
+  version 2
+  network [Réseau du site]
+  redistribute ospf 2
 
 ! Redirection des routes RIPv2 vers OSPF
 router ospf 2
   redistribute rip subnets
 \end{lstlisting}
 
-\seefile{direction-general/DG-Front.cfg}
+\seefile{agence-commerciale/AC-Front.cfg}
+
+\subsection{Routeur de site}
+
+Chaque site peux disposer d'un ou plusieurs routeurs relais permettant un routage en interne du site.
+Comme chaque site dispose d'un protocole de routage différent, il est nécéssaire d'avoir une configuration spécifique pour chaque type de routage.
+
+\begin{lstlisting}[caption=Configuration de base d'un routeur de site]
+enable
+conf t
+
+!Nom unique du routeur sur le réseau Telredor
+hostname [Nom routeur]
+
+! Liaison vers un autre routeur
+interface FastEthernet 0/1
+  ip address [Adresse Point-à-point] 255.255.255.252
+  no shutdown
+\end{lstlisting}
+
+\subsubsection{Routage OSPF}
+
+\begin{lstlisting}[caption=Configuration d'un routeur de site avec OSPF]
+! Configuration d'un routage OSPF
+router ospf 2
+  network [Réseau site] [Whildcard site] area [Numéro de zone site]
+  ! Résumé de la plage d'adresse du site
+  area [Numéro de zone site] range [Réseau site] [Masque site]
+\end{lstlisting}
+
+\seefile{unite-production/UP-1.cfg}
+
+\subsubsection{Routage EIGRP}
+
+\begin{lstlisting}[caption=Configuration d'un routeur de site avec EIGRP]
+! Configuration d'un routage EIGRP
+router eigrp 1
+  network [Réseau site] [Wildcard site]
+  no auto-summary
+\end{lstlisting}
+
+\seefile{unite-stockage/US-1.cfg}
+
+\subsubsection{Routage Statique}
+
+\begin{lstlisting}[caption=Configuration d'un routeur de site avec routage statique]
+! Ajout d'une route statique pour chaque routeur du site
+ip route [Réseau cible] [Masque cible] [Adresse du voisin]
+\end{lstlisting}
+
+\seefile{direction-general/DG-1.cfg}
+
+\subsubsection{Routage RIPv2}
+
+\begin{lstlisting}[caption=Configuration d'un routeur de site avec RIPv2]
+! Configuration d'un routage RIPv2
+router rip
+  version 2
+  network [Réseau du site]
+  redistribute ospf 2
+\end{lstlisting}
+
+\seefile{agence-commerciale/AC-1.cfg}
 
 \end{document}
