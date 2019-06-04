@@ -74,6 +74,12 @@
 \rule{0.5\textwidth}{0.4pt}
 \end{center}
 
+\bigskip
+
+\input{../gns3box.tex}
+
+\bigskip
+
 \tableofcontents
 
 \section{Introduction}
@@ -305,6 +311,59 @@ router rip
 \end{lstlisting}
 
 \seefile{agence-commerciale/AC-1.cfg}
+
+\subsection{Acces VPN}
+
+L'acces VPN permet à un utilisateur externe de dispose d'un acces au réseau de \tlr.
+L'acces VPN est configuré sur le routeur \emph{"Front"} de la direction générale mais peut être adapté à tout routeur de l'infrastructure.
+\emph{Attention} : Un acces VPN représente une faille de sécurité car l'acces du réseau est dépendant d'un couple utilisateur/mot de passe qui peut être compromis.
+Il est recommandé de bien surveiller le traffice vers et depuis ces interfaces.
+
+\begin{lstlisting}[caption=Configuration d'un service VPN]
+aaa new-model
+aaa authorization network VPN local
+
+username [Nom utilisateur] password [chiffrrement pass] [Mot de passe]
+
+crypto isakmp policy 1
+  encr 3des
+  hash md5
+  authentication pre-share
+  group 2
+exit
+
+crypto isakmp client configuration group [Nom groupe VPN]
+  key secret
+  pool [Nom pool VPN]
+  acl [Nom acces VPN]
+exit
+
+! Configuration du pool d'adresse assocé aux connections
+ip local pool [Nom pool VPN] [Adresse IP début] [Adresse IP fin]
+
+! Configuration des liste d'accès
+ip access-list extended [Nom acces VPN]
+  permit ip [Réseau autorisé] [Masque autorisé]
+exit
+
+crypto ipsec transform-set T1 esp-3des esp-sha-hmac
+
+crypto dynamic-map DYNMAP 10
+  set transform-set T1
+  reverse-route
+exit
+
+crypto map VPN client authentication list VPN
+crypto map VPN isakmp authorization list VPN
+crypto map VPN client configuration address respond
+crypto map VPN 10 ipsec-isakmp dynamic DYNMAP
+
+! Configuration de l'interface de récéption du VPN
+interface Serial 0/1
+  crypto map VPN
+\end{lstlisting}
+
+\seefile{direction-general/DG-Front.cfg}
 
 \subsection{Bureau de proximité}
 
