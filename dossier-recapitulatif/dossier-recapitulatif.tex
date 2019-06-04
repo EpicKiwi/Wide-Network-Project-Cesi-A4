@@ -75,18 +75,18 @@
 
 \section{Introduction}
 
-Ce document décrit l'ensemble de l'installation a grande échelle de \spr et de \tlr. 
-Dans une première partie, la topologie de chacune des entreprise est détaillée en donnant diverses informations sur chacun des protocols utilisés.
-Dans une seconde partie, l'ensemble des informations factuelles de la topologie est résumée de manière plus synthétique pour un acces rapide lors de la maintenance de l'architecture.
-L'ensemble des configurations de routeur est présent sur le repository du projet disponible à l'adress \url{https://github.com/EpicKiwi/Wide-Network-Project-Cesi-A4/tree/master/network}.
+Ce document décrit l'ensemble de l'installation à grande échelle de \spr et de \tlr. 
+Dans une première partie, la topologie de chacune des entreprises est détaillée en donnant diverses informations sur chacun des protocoles utilisés.
+Dans une seconde partie, l'ensemble des informations factuelles de la topologie est résumé de manière plus synthétique pour un accès rapide lors de la maintenance de l'architecture.
+L'ensemble des configurations de routeur est présent sur le repository du projet disponible à l'adresse \url{https://github.com/EpicKiwi/Wide-Network-Project-Cesi-A4/tree/master/network}.
 
 \section{\spr}
 
 \spr est un fournisseur d'acces à internet créé en même temps que \tlr.
-Les deux entreprises on collaborées des leur début ce qui à permis une forte cohésion et synergie entre leurs technologies.
-Ajourd'hui dans le cadre de la démarche d'harmonisation de la communication numérique de \tlr, \spr entame une refonte de son réseau interne dans un objectif de moderniser leurs installation.
+Les deux entreprises ont collaboré dès leurs débuts ce qui à permis une forte cohésion et synergie entre leurs technologies.
+Ajourd'hui dans le cadre de la démarche d'harmonisation de la communication numérique de \tlr, \spr entame une refonte de son réseau interne dans un objectif de moderniser leurs installations.
 
-Pour ce faire, Nous avons conçu une architecture basée sur les téchnologie MPLS, OSPF, BGP et VRF de Cisco.
+Pour ce faire, Nous avons conçu une architecture basée sur les technologies MPLS, OSPF, BGP et VRF de Cisco.
 
 \subsection{Topologie de base}
 
@@ -94,18 +94,27 @@ La maquette donnée montre un exemple de nuage qui donne une bonne idée de l'ar
 L'objectif étant de mettre en place une structure décentralisée et maillée pour répartir la charge des clients sur l'ensemble du réseau.
 Nous avons pris comme exemple sur cette maquette, une topologie maillée de 3 routeurs connectés ensemble par des liaisons série fibre pour une grande bande passante et une faible latence.
 Ces liaisons sont encapsulées suivant le protocol \texttt{ppp} pour assurer une plus grande flexibilité dans le cas de l'installation de machines non-cisco mais aussi pour profiter des protocoles d'authentification comme CHAP permettant d'authentifier le client désirant se connecter.
-Les routeurs sont liés entre eux par des réseaux reduits appartenant au réseau de \spr \texttt{172.16.0.0/16} (voir \emph{adressage}).
+Les routeurs sont liés entre eux par des réseaux réduits appartenant au réseau de \spr \texttt{172.16.0.0/16} (voir \emph{adressage}).
 
 \begin{figue}{img/nuage-supra.pdf}
 	\caption{Maquette de topologie \spr}
 \end{figue}
 
+\subsection{Matériel}
+
+Du point de vue matériel, notre maquette se voit simplifiée par l'utilisation d'un unique type de routeur CISCO, le C3725.
+En effet, celui-ci se trouve capable de prendre tous les rôles dont nous avions besoin.
+Les modifications majeures entre chaque routeur sont, outre la configuration, les différentes interfaces réseaux installées dans chaque routeur.
+L'interface GT96100 intégrée à chaque routeur permet une connectivité à une paire de liens FastEthernet, et ce modèle de routeur est extensible et accepte jusqu'à deux adaptateurs et trois WICs supplémentaires pour résoudre nos besoins de connectivité FastEthernet et Serial.
+
+Il est à noter que les routeurs de base ne dispose pas d'assez de mémoire vive pour permettre la mise en place d'un NAT, et nous sommes donc passés de 128 à 255MiB sur les routeurs ayant ce rôle.
+
 \subsection{Adresssage}
 \label{adressage}
 
-L'adressage des routeurs constituant le réseau s'est éfféctué sur la plage d'adresses privée \texttt{172.16.0.0/16} qui est ensuite découpée en une myriade de sous-réseaux de masque \texttt{/30}.
+L'adressage des routeurs constituant le réseau s'est effectué sur la plage d'adresses privées \texttt{172.16.0.0/16} qui est ensuite découpée en une myriade de sous-réseaux de masque \texttt{/30}.
 
-Dans notre exemple restrein de 3 routeurs \spr a divisé le réseaux en sous réseaux suivants :
+Dans notre exemple restrein de 3 routeurs \spr a divisé le réseaux en sous-réseaux suivants :
 
 \bigskip
 
@@ -123,40 +132,40 @@ Dans notre exemple restrein de 3 routeurs \spr a divisé le réseaux en sous ré
 
 \subsection{Routage interne}
 
-Pour le routage de l'ensemble des paquets du réseau, \spr a décidé d'utiliser le protocol ouvert OSPF pour garantir la compatibilité sur d'éventuels futurs routeurs non-Cisco.
-\spr à fait le choix de conserver sur la zone 0 l'ensemble du réseau principal et se reserve les autres zones pour d'éventuels réseaux d'entreprise ou de maintenance.
-Mais il est à considèrer que l'élargissement du réseau de \spr à une échelle international nécéssitera de repenser cette topologie et d'inclure des zones OSPF pour réduire la charge de calcul de l'ensemble des routeurs lors de la constitution des tables de routage.
+Pour le routage de l'ensemble des paquets du réseau, \spr a décidé d'utiliser le protocole ouvert OSPF pour garantir la compatibilité sur d'éventuels futurs routeurs non-Cisco.
+\spr a fait le choix de conserver sur la zone 0 l'ensemble du réseau principal et se réserve les autres zones pour d'éventuels réseaux d'entreprise ou de maintenance.
+Mais il est à considèrer que l'élargissement du réseau de \spr à une échelle internationale nécéssitera de repenser cette topologie et d'inclure des zones OSPF pour réduire la charge de calcul de l'ensemble des routeurs lors de la constitution des tables de routage.
 
-Les réseaux clients étant completement séparés du réseau de \spr par l'utilisation de VRF (Voir \ref{vrf}), l'entreprise peux changer l'adressage et le routage à sa guise sans que les clients n'en soient impactés.
+Les réseaux clients étant completement séparés du réseau de \spr par l'utilisation de VRF (Voir \ref{vrf}), l'entreprise peut changer l'adressage et le routage à sa guise sans que les clients n'en soient impactés.
 
 \subsection{VRF}
 \label{vrf}
 
-Les VRF (pour \emph{Virtual Routing and Forwarding}) est une technologie permettant de séparer complément le traffic d'un client du traffic interne de \spr.
-Cela passe par l'assignation des interfaces reliés au site du client (notées \flechevrf sur le schéma) a un même identifiant appelé \texttt{RD}.
-Ainsi, le client se connecte au réseau de \spr et dispose d'une liaison direct entre ces interface comme si elles étaient sur un même réseau.
+Les VRF (pour \emph{Virtual Routing and Forwarding}) est une technologie permettant de séparer complétement le traffic d'un client du traffic interne de \spr.
+Cela passe par l'assignation des interfaces reliés au site du client (notées \flechevrf sur le schéma) à un même identifiant appelé \texttt{RD}.
+Ainsi, le client se connecte au réseau de \spr et dispose d'une liaison directe entre ces interfaces comme si elles étaient sur un même réseau.
 
 Dans le cas de la collaboration avec \tlr, \spr à mis en place la VRF nommée \texttt{vrf-telredor} ayant pour \texttt{RD} le numéro \texttt{65000:1}.
 Cette VRF permet de relier les sites les plus importants de \tlr comme la direction générale, l'unité de stockage, l'usine de production et l'agence commerciale.
-Grâce a cette VRF, \tlr dispose maintenant d'un unique réseau reliant tout les sites entre eux et permettant une communication plus fluide entre les différents pôles de l'entreprise. (Voir \emph{Dossier de configuration} pour la procedure permettant la configuration d'une nouvelle VRF)
+Grâce a cette VRF, \tlr dispose maintenant d'un unique réseau reliant tout les sites entre eux et permettant une communication plus fluide entre les différents pôles de l'entreprise. (Voir \emph{Dossier de configuration} pour la procédure permettant la configuration d'une nouvelle VRF)
 
-Cette technologie nécéssite la mis en place de deux protocols permettant ma diffusion de paquets : MPLS et BGP.
+Cette technologie nécessite la mis en place de deux protocoles permettant la diffusion de paquets : MPLS et BGP.
 
 \subsubsection{MPLS}
 
-MPLS est un protocol permettant de diriger les paquets suivant des labels.
+MPLS est un protocole permettant de diriger les paquets suivant des labels.
 Ces labels sont définis sur demande et permettent de constituer des circuits virtuels permettant de relier chacun des sites de l'entreprise.
 \spr l'utilise avec son installation VRF pour mettre a disposition de ses clients un réseau de grande taille totalement isolé de son réseau interne et des autres clients de l'entreprise.
 
 \subsubsection{BGP}
 
-BGP est le protocol de routage permettant de transmettre et synchroniser les différents sites.
+BGP est le protocole de routage permettant de transmettre et synchroniser les différents sites.
 Il est utilisé dans le cadre des VRF \spr pour l'échange de différentes routes internes à chaque VRF.
-Pour ce faire, \spr à défini un numéro de système autonome à chacun des ses clients qui l'identifira lors de la communication des routes.
+Pour ce faire, \spr a défini un numéro de système autonome à chacun des ses clients qui l'identifira lors de la communication des routes.
 Chaque routeur membre d'un même système autonome BGP doit avoir un identifiant, cet identifiant est défini par l'interface de Loopback 0 de chaque routeur.
 
 Dans le cas de \tlr, \spr à choisi le numéro de système autonome \texttt{100}
-Les trois routeurs de la topologie étant dédié à l'acces par \tlr, ils sont mentionnés dans les voisins par leur identifiants.
+Les trois routeurs de la topologie étant dédiés à l'accès par \tlr, ils sont mentionnés dans les voisins par leur identifiants.
 
 Ainsi notre AS 100 est constitué des routeurs suivants:
 
@@ -165,42 +174,42 @@ Ainsi notre AS 100 est constitué des routeurs suivants:
 \begin{itemize}
 	\item NG-1 identifié par \texttt{172.16.128.1} relié à l'usine de production et à l'agence commerciale
 	\item NG-2 identifié par \texttt{172.16.128.1} relié à l'unité de stockage
-	\item NG-3 identifié par \texttt{172.16.128.2} relié à la direction générale et au routeur d'acces (voir \ref{acces-internet})
+	\item NG-3 identifié par \texttt{172.16.128.2} relié à la direction générale et au routeur d'accès (voir \ref{acces-internet})
 \end{itemize}
 
 \bigskip
 
-\subsection{Acces à internet}
+\subsection{Accès à internet}
 \label{acces-internet}
 
-\spr n'inclus pas, de base l'acces à internet lors de la maise en place d'un réseau d'entreprise.
-Pour donner un acces à internet aux machines du groupe \tlr, \spr met a disposition un routeur managé loué par \tlr permettant un acces à internet au traver d'un NAS.
+\spr n'inclus pas, de base l'accès à internet lors de la maise en place d'un réseau d'entreprise.
+Pour donner un accès à internet aux machines du groupe \tlr, \spr met a disposition un routeur managé loué par \tlr permettant un accès à internet au traver d'un NAS.
 Cette connexion dispose d'une IP statique \texttt{1.0.0.1} et ce routeur d'acces (nommé \texttt{ACC-IN}) propage une route par défaut sur le réseau.
-Plus d'informations sur ce routeur d'acces sont disponibles dans la section \ref{tlr-acces-internet}.
+Plus d'informations sur ce routeur d'accès sont disponibles dans la section \ref{tlr-acces-internet}.
 
 \section{\tlr}
 
 \tlr est une entreprise internationnal désirant harmoniser son réseau.
-Pour ce faire il ont fait appel à \spr pour collaborer sur une nouvelle topolgie de réseau.
-Cet partie relate des différents protocols mis en place sur chacun des sites et des relations entretenus avec le nuage fournis par \spr.
+Pour ce faire il ont fait appel à \spr pour collaborer sur une nouvelle topologie de réseau.
+Cette partie relate des différents protocoles mis en place sur chacun des sites et des relations entretenus avec le nuage fournis par \spr.
 
 \subsection{Topologie de base}
 
 Sur notre maquette, nous avons représenté les différents sites par un ensemble de 4 routeurs.
-Le routeur connecté au nuage \spr est nommé \emph{Front} est gère l'ensemble des communication entrantes et sortantes du site.
-Les communications internes passent par 3 autres routeurs connecté ensemble selon une topologie maillée.
+Le routeur connecté au nuage \spr est nommé \emph{Front} est gère l'ensemble des communications entrantes et sortantes du site.
+Les communications internes passent par 3 autres routeurs connectés ensemble selon une topologie maillée.
 Ces routeur sont numérotés de 1 à 3 et leur emplacement est libre dans le site en fonction de la topologie interne de chaque site.
-En interne des sites, la connection Ethernet est privilegiée et présente sur l'ensemble du site.
+En interne des sites, la connexion Ethernet est privilegiée et présente sur l'ensemble du site.
 Cela permet une grande flexibilité sur les différents postes que l'on peux connecter à chaque routeur et apporte une solution de connectivité unique sur un site.
-La seul connexion fibrée en série est la connexion au routeur de \spr qui reste la plus importante et chargée puisqu'elle supporte l'ensemble des communication externe du site vers le nuage.
+La seule connexion fibrée en série est la connexion au routeur de \spr qui reste la plus importante et chargée puisqu'elle supporte l'ensemble des communications externe du site vers le nuage.
 
-\paragraph{Postes nomades} Les postes nomades sont des postes disposant de leur propre connectivité au réseau mondial internet a l'aide d'une clé 4G représentée sur la maquette par un routeur.
-Ces postes nomades ne sont pas directement connecté au nuage mais passent par un tunnel VPN de type IPSec configuré entre le routeur de la direction générale et leur propre poste.
-Cela leur permet un acces constant à l'intranet \tlr mais cela représente aussi une faille de sécurité dans le réseau de l'entreprise.
-Il convien de surveiller le traffic entrant et sortant des VPN plus que le retse du réseau.
+\paragraph{Postes nomades} Les postes nomades sont des postes disposant de leur propre connectivité au réseau mondial internet à l'aide d'une clé 4G représentée sur la maquette par un routeur.
+Ces postes nomades ne sont pas directement connectés au nuage mais passent par un tunnel VPN de type IPSec configuré entre le routeur de la direction générale et leur propre poste.
+Cela leur permet un accès constant à l'intranet \tlr mais cela représente aussi une faille de sécurité dans le réseau de l'entreprise.
+Il convient de surveiller le traffic entrant et sortant des VPN plus que le reste du réseau.
 
 \paragraph{Bureaux de proximité} Les bureaux de proximité n'ont pas besoin d'une connexion au réseau commun de \tlr.
-Il n'ont acces qu'au réseau internet et peuvent utiliser tout les services éxposés par \tlr comme un extranet, un serveur de mails, etc.
+Il n'ont accès qu'au réseau internet et peuvent utiliser tout les services exposés par \tlr comme un extranet, un serveur de mails, etc.
 Les bureaux de proximité ont donc à leur disposition un routeur permettant l'adressage des différents postes (au travers d'un service DHCP) et le routage sur internet au travers d'un NAT.
 Aucun système VPN n'est envisagé pour les bureaux de proximité mais la configuration d'un tel système reste possible en cas de besoin.
 
@@ -213,12 +222,12 @@ Aucun système VPN n'est envisagé pour les bureaux de proximité mais la config
 \subsection{Adressage}
 
 Dans le cadre de la refonte du réseau de \tlr, l'ensemble de l'adressage de l'entreprise à été revu et harmonisé pour en dégager des sous-réseaux par site.
-Les réseaux de sites sont prévus pour supporter plus de 200000 appareils connectés sur pres de 20 sites possibles.
+Les réseaux de sites sont prévus pour supporter plus de 200000 appareils connectés sur près de 20 sites possibles.
 
 L'adressage est basé sur l'adresse privée \texttt{10.0.0.0/16} offrant une grande liberté sur le nombre d'hotes possibles.
 Chaque site du nuage dispose d'un sous-réseau en \texttt{/14} ensuite divisé selon la topologie interne de chaque site.
 Cette topologie est laissée à la liberté de la DSI locale.
-Un espace réseau est toute fois réservé pour les communication Point-à-point entre routeurs au sein de chaque site.
+Un espace réseau est toutefois réservé pour les communications Point-à-point entre routeurs au sein de chaque site.
 
 \bigskip
 
@@ -244,39 +253,39 @@ Un espace réseau est toute fois réservé pour les communication Point-à-point
 
 \bigskip
 
-\paragraph{Bureaux de proximité} Les bureaux de proximité disposant de peux de poste et d'un acces isolé au réseau, il leur est attribué l'ensemble d'un réseau privé de type \texttt{192.168.0.0/16} offrant pres de 60000 postes disponibles.
-L'adressage automatique est éfféctué par le routeur lui même au travers d'un service DHCP Cisco.
+\paragraph{Bureaux de proximité} Les bureaux de proximité disposant de peu de poste et d'un accès isolé au réseau, il leur est attribué l'ensemble d'un réseau privé de type \texttt{192.168.0.0/16} offrant près de 60000 postes disponibles.
+L'adressage automatique est effectué par le routeur lui même au travers d'un service DHCP Cisco.
 
-\paragraph{Postes nomades} Les postes nomades disposent de leur propre réseau isolé au travers de leur clé 4G mais ont acces au réseau internet \tlr au travers de VPN.
-Ces connexion VPN doivent disposer d'adresses et ces adresses sont prévues dans le plage d'adresse \texttt{10.0.192.0/18}.
+\paragraph{Postes nomades} Les postes nomades disposent de leur propre réseau isolé au travers de leur clé 4G mais ont accès au réseau internet \tlr au travers de VPN.
+Ces connexions VPN doivent disposer d'adresses et ces adresses sont prévues dans le plage d'adresse \texttt{10.0.192.0/18}.
 
 \subsection{Routage interne}
 
-Au cours des achats et implantations de \tlr en de nombreux emplacements, la topologie dispose aujourd'hui de nombreux protocols différents utilisé au sein de son réseau.
-L'objectif de l'harmonisation des réseaux de \tlr est d'unifier toute cette architecture autour d'un ensemble de protocols permettant une communication plus éfficace.
-Il n'est pas possible de revoir les protocols utilisés sur les sites en raison d'une trop grande dépendances des système d'information en place mais le maximum à été fait pour se diriger vers une harmonisation autours des protocoles normalisés et non-propriétaires tels que OSPF.
+Au cours des achats et implantations de \tlr en de nombreux emplacements, la topologie dispose aujourd'hui de nombreux protocoles différents utilisé au sein de son réseau.
+L'objectif de l'harmonisation des réseaux de \tlr est d'unifier toute cette architecture autour d'un ensemble de protocoles permettant une communication plus efficace.
+Il n'est pas possible de revoir les protocoles utilisés sur les sites en raison d'une trop grande dépendance des systèmes d'information en place mais le maximum à été fait pour se diriger vers une harmonisation autour des protocoles normalisés et non-propriétaires tels que OSPF.
 
-\paragraph{Routage inter-site} Même si le nuage apporte déja un système de routage, il est nécéssaire d'avoir un protocol unique pour la communication entre les routeurs dit \emph{Front} et les routeurs du nuage \spr.
+\paragraph{Routage inter-site} Même si le nuage apporte déja un système de routage, il est nécssaire d'avoir un protocol unique pour la communication entre les routeurs dit \emph{Front} et les routeurs du nuage \spr.
 Ces derniers ont été configurés par \spr selon la topologie de \tlr avec une zone OSPF définie par site.
 
-\paragraph{Routage intra-site} Les protocoles de routage au sein de chaque site reste inchangé pour le moment et les routes de l'ensemble du réseau sont redistribués.
+\paragraph{Routage intra-site} Les protocoles de routage au sein de chaque site reste inchangés pour le moment et les routes de l'ensemble du réseau sont redistribués.
 Ainsi, la direction générale dispose d'un routage statique, l'agence commerciale dispose d'un routage RIPv2, et l'unité de stockage d'un protocol EIGRP.
-Sul l'usine de production s'intègre à l'architecture OSPF mise en place sur le coeur de réseau.
+Seule l'usine de production s'intègre à l'architecture OSPF mise en place sur le coeur de réseau.
 
 \subsection{Acces à internet}
 
-L'acces a internet des sites passe par un routeur d'acces mis a disposition par \spr et configuré par \tlr selon ses besoins.
-Ce routeur d'acces (Noté \texttt{ACC-IN} sur le schéma) permet à l'ensemble des sites de disposer d'un acces au réseau internet.
-Ce routeur utilise un NAT et surcharcharge l'adresses statique publique qu'il possède pour faire communiquer l'ensemble des sites sur internet.
+L'accès à internet des sites passe par un routeur d'accès mis a disposition par \spr et configuré par \tlr selon ses besoins.
+Ce routeur d'accès (Noté \texttt{ACC-IN} sur le schéma) permet à l'ensemble des sites de disposer d'un accès au réseau internet.
+Ce routeur utilise un NAT et surcharge l'adresses statique publique qu'il possède pour faire communiquer l'ensemble des sites sur internet.
 
-En cas d'une trop grande charge, il est possible de mettre en place un pool d'adresse pour répartir la charge sur de multiples adresses d'acces.
+En cas d'une trop grande charge, il est possible de mettre en place un pool d'adresses pour répartir la charge sur de multiples adresses d'accès.
 
-\paragraph{Acces Direction générale}
+\paragraph{Accès Direction générale}
 La direction générale dispose de sa propre connexion internet en mode NAT tout comme le routeur \texttt{ACC-IN}.
-Cet acces secondaire permet de décharger le routeur d'acces tout en mettant disposition des postes nomades un acces direct au VPN de \tlr.
-De plus cet acces ser aussi d'un acces de secours au réseau de la direction général en cas de rupture de lien avec les autres sites. Il est alors possible de mettre en place un VPN pour diriger le traffic au travers d'internet.
+Cet accès secondaire permet de décharger le routeur d'accès tout en mettant à disposition des postes nomades un accès direct au VPN de \tlr.
+De plus cet accès sert aussi d'accès de secours au réseau de la direction générale en cas de rupture de lien avec les autres sites. Il est alors possible de mettre en place un VPN pour diriger le traffic au travers d'internet.
 
-\paragraph{Bureaux de proximité} Les bureaux de proximité disposent de leur propre adresse IP sur le réseau internet et communiquent avec celui-ci au travers d'un routeur NAT surchargeant cette adresses lors des connexions.
+\paragraph{Bureaux de proximité} Les bureaux de proximité disposent de leur propre adresse IP sur le réseau internet et communiquent avec celui-ci au travers d'un routeur NAT surchargeant cette adresse lors des connexions.
 
 \clearpage
 \section{Résumé de topologie : \spr}
@@ -305,7 +314,7 @@ De plus cet acces ser aussi d'un acces de secours au réseau de la direction gé
 	\caption{Maquette de topologie \tlr}
 \end{figue}
 
-\subsection{Adressage général}
+\subsection{Addressage général}
 
 \begin{description}
 	\item[Réseau \tlr] \texttt{10.0.0.0/8}

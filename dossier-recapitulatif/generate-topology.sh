@@ -36,8 +36,11 @@ for file in $@; do
 	echo "	\begin{description}"
 
 	cat "$file" | sed -n '/interface/,/^\s*$/Ip' | while read line; do
-
-		if ( echo "$line" | grep "^interface" -I >> /dev/null ) ; then
+		
+		if ( echo "$line" | grep "^router" -I >> /dev/null ) ; then
+			newRouter=$(echo "$line" | sed "s/^router \(.*\)$/\1/I")
+		
+		elif ( echo "$line" | grep "^interface" -I >> /dev/null ) ; then
 			newInterface=$(echo "$line" | sed "s/^interface \(.*\)$/\1/I")
 			if [ "$currentInterface" != "" ]; then
 				generatedoc
