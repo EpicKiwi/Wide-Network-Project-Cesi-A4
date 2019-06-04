@@ -295,6 +295,16 @@ De plus cet accès sert aussi d'accès de secours au réseau de la direction gé
 
 \paragraph{Bureaux de proximité} Les bureaux de proximité disposent de leur propre adresse IP sur le réseau internet et communiquent avec celui-ci au travers d'un routeur NAT surchargeant cette adresse lors des connexions.
 
+\section{Perspectives d'améliorations}
+
+La maquette conçue durant cette mission représente un exemple global de la topologie et peut être améliorée sur certains points.
+Voici quelques pistes d'améliorations de la topologie proposée.
+
+\paragraph{Redondance} Pour garantir un meilleur SLA, il est conseillé d'ajouter des machines redodantes pour garantir que la seconde prenne le relai en cas de rupture de la première machine.
+De plus cela permetterait de diffuser la charge sur deux machine et ainsi empêcher les congestions.
+
+\paragraph{Authentification des liens client} Coté \spr, il est possible de mettre en place une authentification avec le protocole \emph{CHAP} pour les clients et ainsi empêcher la connexion indésirable de potentielles menaces sur le nuage.
+
 \clearpage
 \section{Résumé de topologie : \spr}
 

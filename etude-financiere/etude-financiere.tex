@@ -51,7 +51,7 @@
 }
 \lstset{language=cisco}
 
-\title{Mission Telredor-Supra : Dossier Financier}
+\title{Mission Telredor-Supra : Étude financière}
 \date{3 Juin 2019}
 \author{Clément \bsc{Boutin} \and Baptiste \bsc{Saclier}}
 
@@ -73,8 +73,16 @@
 
 \begin{document}
 
+\maketitle
+
 \begin{center}
-Ici : l'étude financière
+\rule{0.5\textwidth}{0.4pt}
+\end{center}
+
+\tableofcontents
+
+	\clearpage
+
 	\section{\spr}
 
 	Nous estimons ici le coût de la connexion de \tlr au réseau \spr et plus précisément au nuage \spr .
@@ -84,10 +92,13 @@ Ici : l'étude financière
 	Le reste de la répartition du coût concerne chacun des liens aux différents site \tlr .
 	Tout comme pour l'infrastructure existante, il convient de réserver un budget pour la maintenance à la fois matériel et logicielle, mais également comptabiliser la consommation en énergie des équipements réseaux qui n'est pas des moindres.
 
+	\begin{figue}{img/supra-telecom.png}
+		\caption{Découpage du budget mensuel de \spr}
+	\end{figue}
+	
 	Le coût annuel calculé reviens donc à \textbf{16800 \euro}
 
-	
-	\figue{img/supra-telecom.png}
+	\clearpage
 
 	\section{\tlr}
 
@@ -97,15 +108,14 @@ Ici : l'étude financière
 	Ce nombre va probablement évoluer à la hausse mais reste plus que confortable pour le moment.
 	Une fois la solution éprouvée, cette partie sera réévaluée.
 	
-	Egalement, il est nécessaire d'avoir une connexion fibrée assurée à chaque site en cas de chute du réseau.
+	Egalement, il est nécessaire d'avoir une connexion fibrée assurée à chaque site en cas de chute du nuage.
 	Bien sûr, la connexion fibrée dans la plupart des réseaux est limitée, ne servant qu'en cas de problème, et seule celle de la Direction Générale est dimensionnée pour être utilisée quotidiennemment et par la totalité des employés sur site.
 
-	Finalement, on compte aussi une liaison au nuage \spr par site. La liaison est facturée, mais également le routeur d'accès disposé entre le nuage \spr et chaque site de \tlr .
+	Finalement, on compte aussi une liaison au nuage \spr par site. La liaison est facturée, mais également le routeur d'accès permettant la connexion au réseau mondial internet.
 	
-	\figue{img/telredor.png}
-
+	\begin{figue}{img/telredor.png}
+		\caption{Découpage du budget mensuel de \tlr}
+	\end{figue}
+	
 	Le coût annuel calculé reviens donc à \textbf{43800 \euro}
-
-\end{center}
-
 \end{document}
