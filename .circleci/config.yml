@@ -11,6 +11,7 @@ jobs:
           command: |
             cd dossier-configuration;
             pdflatex -interaction=nonstopmode dossier-configuration.tex;
+            pdflatex -interaction=nonstopmode dossier-configuration.tex;
             cp dossier-configuration.pdf /Documents;
       - store_artifacts:
           path: /Documents/dossier-configuration.pdf
@@ -19,6 +20,7 @@ jobs:
           command: |
             cd dossier-recapitulatif;
             pdflatex -interaction=nonstopmode dossier-recapitulatif.tex;
+            pdflatex -interaction=nonstopmode dossier-recapitulatif.tex;
             cp dossier-recapitulatif.pdf /Documents;
       - store_artifacts:
           path: /Documents/dossier-recapitulatif.pdf
@@ -26,6 +28,7 @@ jobs:
           name: "Build: Étude financière"
           command: |
             cd etude-financiere;
+            pdflatex -interaction=nonstopmode etude-financiere.tex;
             pdflatex -interaction=nonstopmode etude-financiere.tex;
             cp etude-financiere.pdf /Documents;
       - store_artifacts:
