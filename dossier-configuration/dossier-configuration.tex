@@ -32,6 +32,14 @@
   {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
   {€}{{\euro}}1
 }
+\lstdefinelanguage{cisco}{
+  keywords={no},
+  ndkeywords={Loopback,Serial,FastEthernet,Ethernet},
+  sensitive=false,
+  comment=[l]{!},
+  morecomment=[s][\color{PineGreen}]{[}{]},
+}
+\lstset{language=cisco}
 %paramètrage
 \lstset{basicstyle=\ttfamily\color{darkgray},
 		numbers=left,
@@ -43,12 +51,189 @@
 		inputencoding=utf8,
     	extendedchars=true}
 
-\title{Mission Telredor-Supra : Dosser récapitulatif}
+\title{Mission Telredor-Supra : Dosser de configuration}
 \date{3 Juin 2019}
 \author{Clément \bsc{Boutin} \and Baptiste \bsc{Saclier}}
+
+\newcommand{\tlr}{Telredor\xspace}
+\newcommand{\spr}{Supra Télécom\xspace}
+
+\newcommand{\seefile}[1]{
+  \begin{center}
+  \begin{minipage}{0.9\textwidth}
+    \emph{Exemple}: voir \texttt{\href{https://github.com/EpicKiwi/Wide-Network-Project-Cesi-A4/blob/master/network/#1}{#1}}
+  \end{minipage}
+  \end{center}
+}
 
 \begin{document}
 
 \maketitle
+
+\begin{center}
+\rule{0.5\textwidth}{0.4pt}
+\end{center}
+
+\tableofcontents
+
+\section{Introduction}
+
+Ce document est un receuil de configuration diverses de l'ensemble de la mission d'harmonisation du réseau de \tlr et de \spr.
+L'ensemble des configuration de la maquette sont disponibles à l'adresse \url{https://github.com/EpicKiwi/Wide-Network-Project-Cesi-A4/tree/master/network}.
+
+\paragraph{Nomenclature} Les modèles de configuration de ce document contiennent des description entourés de crochets qui doivent être remplacés par les informations nécéssaires.
+Exemple : \texttt{\color{PineGreen}[Adresse interne client]} soit être remplacé par l'adresse IP interne du client.
+
+\section{Modèle de configuration \spr}
+
+Les routeurs \spr composent le nuage par lequel les clients de l'entreprise accèdent à un réseau multisites.
+Les routeurs de ce nuage utilisent les protocoles OSPF pour le routage interne, MPLS pour le switching de paquets des clients et BGP pour le routage entre les VRF des clients.
+Pour plus d'informations sur les protocoles utilisés, veuillez consulter le \emph{Dossier récapitulatif}.
+
+Les routeurs du nuage sont tous basés sur un même modèle de configuration qui peut être réutilisé dans une optique d'élargissement.
+
+\begin{lstlisting}[caption=Modèle de configuration d'un routeur nuagique]
+enable
+conf t
+
+! Nom unique du routeur sur le nuage Supra
+hostname [Nom routeur]
+
+! Mise en place de la communication MPLS et des communications de labels
+mpls ldp advertise-labels
+! L'interface de Loopback 0 servira d'identifiant du routeur
+mpls ldp router-id Loopback 0 force
+
+! Déclaration des VR client et de leur RD assocés
+ip vrf [Nom VRF client]
+  rd 65000:1
+  route-target both 65000:1
+
+! Interface servant d'identifiant au travers de son adresse IP
+interface Loopback 0
+  ip address [Adresse IP d'identification routeur] 255.255.255.255
+
+! Interface de connexion à un autre routeur du nuage
+interface Serial 0/0
+  encapsulation ppp
+  ip address [Adresse IP routeur] 255.255.255.252
+  mpls ip
+  no shutdown
+
+! Interface de connexion à un client sur une VRF particulière
+interface Serial 0/3
+  encapsulation ppp
+  ip vrf forwarding [Nom VRF client]
+  ip address [Adresse interne client] [Masque interne client]
+  no shutdown
+
+! Association des interfaces à la zone 0 globale du nuage Supra
+router ospf 1
+  network 172.16.0.0 0.0.255.255 area 0
+
+! Association du protocol ospf à l'interface client
+router ospf 2 vrf [Nom VRF client]
+  network [Réseau interne client] [Whildcard interne client] area [Numéro de zone client]
+  redistribute bgp 100 subnets
+  ! En cas de propagation de route par défaut, ajouter la ligne suivante
+  default-information originate
+
+! Mise en place de BGP pour l'AS client
+router bgp [Numéro AS client]
+  neighbor [IP routeur client voisin] remote-as [Numéro AS client]
+  neighbor [IP routeur client voisin] update-source Loopback 0
+  address-family vpnv4
+    neighbor [IP routeur client voisin] activate
+    neighbor [IP routeur client voisin] send-community both
+  address-family ipv4 vrf [Nom VRF client]
+    redistribute ospf 2 vrf [Nom VRF client]
+\end{lstlisting}
+
+\seefile{nuage-supra/NG-1.cfg}
+
+\section{Modèles de configuration \tlr}
+
+Le réseau de \tlr est tres étendu et possède plusieurs types de configuration possible en fonction du rôle du routeur.
+Ces modèles sont décris ci-apres.
+
+\subsection{Routeur "Front" d'accès au nuage}
+
+Les routeurs dits \emph{"Front"} sont les routeurs directement connectés au nuage.
+Ces routeurs servent d'interface entre le nuage et le réseau du site.
+Ils sont configurés pour la redistribution des routes du nuage (distribués en OSPF) vers les routes du site et son protocol de routage spécifique.
+
+\begin{lstlisting}[caption=Modèle de configuration d'un routeur "Front"]
+enable
+conf t
+
+!Nom unique du routeur sur le réseau Telredor
+hostname [Nom routeur]
+
+! Liaison avec le routeur d'accès nuagique du fourniseeur d'acces
+interface Serial 0/0
+  encapsulation ppp
+  ip address [IP de liaison] 255.255.255.252
+  no shutdown
+
+! Liaison avec un autre routeur du site
+interface FastEthernet 0/1
+  ip address [IP du routeur] 255.255.255.252
+  no shutdown
+
+! Connexion OSPF avec le routeur de liaison
+router ospf 2
+  network [Réseau site] [Whildcard site] area [Numéro de zone site]
+  ! Résumé de la plage d'adresse du site
+  area [Numéro de zone site] range [Réseau site] [Masque site]
+\end{lstlisting}
+
+\seefile{unite-production/UP-Front.cfg}
+
+Chaque site (excepté l'usine de production) dispose d'un protocol de routage spécifique.
+Pour s'adapter a chaque routage, il est possible d'ajouter le modèle suivant pour un routeur \emph{"Front"}.
+
+\subsubsection{Routage EIGRP}
+
+\begin{lstlisting}[caption=Configuration d'un routeur "Front" avec EIGRP]
+! Configuration d'un routage EIGRP avec redistribution depuis OSPF
+router eigrp 1
+  network [Réseau site] [Wildcard site]
+  no auto-summary
+  redistribute ospf 2
+
+! Redirection des routes EIGRP vers OSPF
+router ospf 2
+  redistribute eigrp 1 subnets
+  ! Dans le cas d'une propagation de route par défaut
+  default-information originate
+\end{lstlisting}
+
+\seefile{unite-stockage/US-Front.cfg}
+
+\subsubsection{Routage Statique}
+
+\begin{lstlisting}[caption=Configuration d'un routeur "Front" avec routage statique]
+! Ajout d'une route statique pour chaque routeur du site
+ip route [Réseau cible] [Masque cible] [Adresse du voisin]
+
+! Redirection des routes statiques vers OSPF
+router ospf 2
+  redistribute static subnets
+\end{lstlisting}
+
+\seefile{direction-general/DG-Front.cfg}
+
+\subsubsection{Routage RIPv2}
+
+\begin{lstlisting}[caption=Configuration d'un routeur "Front" avec RIPv2]
+! Configuration d'un routage RIPv2 avec redistribution depuis OSPF
+ip route [Réseau cible] [Masque cible] [Adresse du voisin]
+
+! Redirection des routes RIPv2 vers OSPF
+router ospf 2
+  redistribute rip subnets
+\end{lstlisting}
+
+\seefile{direction-general/DG-Front.cfg}
 
 \end{document}
