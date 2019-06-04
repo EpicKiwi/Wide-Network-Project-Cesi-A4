@@ -2,6 +2,8 @@
 
 > Projet Telredor et Supra-Telecom de 4e année au CESI
 
+![Topologie](./topologie.png)
+
 * [Trello](https://trello.com/b/kFQMEdpO/wide-network-project)
 
 ## Structure
