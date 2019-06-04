@@ -21,7 +21,9 @@
 *.mtc1
 *.out
 *.synctex.gz
-*.pdf
+dossier-recapitulatif/dossier-recapitulatif.pdf
+dossier-configuration/dossier-configuration.pdf
+etude-financiere/etude-financiere.pdf
 
 IN-WEB/toyota/*
 IN-WEB/telredor/*
