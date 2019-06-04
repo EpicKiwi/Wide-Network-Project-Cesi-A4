@@ -1,9 +1,111 @@
 \documentclass{article}
 
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[francais]{babel}
+%Chargement des packages
+\usepackage{graphicx}
+\usepackage{ifthen}
+\usepackage{amsmath}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{amsfonts}
+\usepackage{tabulary}
+\usepackage{listings}
+\usepackage{xspace}
+\usepackage{amssymb}
+\usepackage{eurosym}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\lstset{literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\euro}}1
+}
+%paramètrage
+\lstset{basicstyle=\ttfamily\color{darkgray},
+		numbers=left,
+		frame=single,
+		breaklines=true,
+		stringstyle=\color{PineGreen},
+		commentstyle=\color{Tan},
+		keywordstyle=\bfseries\color{RedOrange},
+		inputencoding=utf8,
+    	extendedchars=true}
+\lstdefinelanguage{cisco}{
+  keywords={no},
+  ndkeywords={Loopback,Serial,FastEthernet,Ethernet},
+  sensitive=false,
+  comment=[l]{!},
+  morecomment=[s][\color{PineGreen}]{[}{]},
+}
+\lstset{language=cisco}
+
+\title{Mission Telredor-Supra : Dossier Financier}
+\date{3 Juin 2019}
+\author{Clément \bsc{Boutin} \and Baptiste \bsc{Saclier}}
+
+\newenvironment{figue}[1]{
+	\par
+	\bigskip
+	\begin{figure}[h]
+	\begin{center}
+	  \includegraphics[width=0.9\textwidth]{#1}
+	\end{center}
+}{
+	\end{figure}
+	\bigskip
+}
+
+\newcommand{\tlr}{Telredor\xspace}
+\newcommand{\spr}{Supra Télécom\xspace}
+\newcommand{\flechevrf}{\includegraphics[scale=0.4]{img/lien-vrf-fleche}}
+
 \begin{document}
 
 \begin{center}
 Ici : l'étude financière
+	\section{\spr}
+
+	Nous estimons ici le coût de la connexion de \tlr au réseau \spr et plus précisément au nuage \spr .
+
+	Le coût estimé du nuage MPLS est un coût stable de l'infrastructure déjà en place, concernant à la fois la maintenance du matériel et la veille des bogues logiciels.
+
+	Le reste de la répartition du coût concerne chacun des liens aux différents site \tlr .
+	Tout comme pour l'infrastructure existante, il convient de réserver un budget pour la maintenance à la fois matériel et logicielle, mais également comptabiliser la consommation en énergie des équipements réseaux qui n'est pas des moindres.
+
+	Le coût annuel calculé reviens donc à \textbf{16800 \euro}
+
+	
+	\figue{img/supra-telecom.png}
+
+	\section{\tlr}
+
+	Nous estimons ici le budget mensuel pour Telredor en fonction des prix de la concurrence.
+	Ceci prend en compte des abonnements avec Clefs 4G, utilisées par les salariés nomades qui se connectent à la direction générale par tunnel VPN.
+	On estime à environ 37 le nombre de salariés susceptible de se connecter ainsi à distance.
+	Ce nombre va probablement évoluer à la hausse mais reste plus que confortable pour le moment.
+	Une fois la solution éprouvée, cette partie sera réévaluée.
+	
+	Egalement, il est nécessaire d'avoir une connexion fibrée assurée à chaque site en cas de chute du réseau.
+	Bien sûr, la connexion fibrée dans la plupart des réseaux est limitée, ne servant qu'en cas de problème, et seule celle de la Direction Générale est dimensionnée pour être utilisée quotidiennemment et par la totalité des employés sur site.
+
+	Finalement, on compte aussi une liaison au nuage \spr par site. La liaison est facturée, mais également le routeur d'accès disposé entre le nuage \spr et chaque site de \tlr .
+	
+	\figue{img/telredor.png}
+
+	Le coût annuel calculé reviens donc à \textbf{43800 \euro}
+
 \end{center}
 
 \end{document}
