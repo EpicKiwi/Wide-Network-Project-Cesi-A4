@@ -301,4 +301,88 @@ router rip
 
 \seefile{agence-commerciale/AC-1.cfg}
 
+\subsection{Bureau de proximité}
+
+Les bureaux de proximité sont des sites completement séparés du reste du réseau \tlr.
+Ils disposent d'un unique routeur faisant office de DHCP pour l'ensemble du site.
+Il accede à internet au travers d'un NAT.
+
+\begin{lstlisting}[caption=Configuration d'un routeur de bureau de proximité]
+enable
+conf t
+
+!Nom unique du routeur sur le réseau du Bureau de proximité
+hostname [Nom routeur]
+
+! Configuration de l'interface local a laquelle l'ensemble des postes
+! du bureaux seront connectés
+interface FastEthernet 0/0
+  ip address [IP interne bureau] [Masque interne bureau]
+  ip nat inside
+  no shutdown
+
+! Configuration de l'interface intenet
+interface Serial 0/0
+  ip address [IP externe bureau] [Masque externe bureau]
+  encapsulation ppp
+  ip nat outside
+  no shutdown
+
+! Définition de la route par défaut vers internet
+ip route 0.0.0.0 0.0.0.0 Serial 0/0
+
+! Définition des routes pouvant être traduite via NAT
+access-list 1 permit 192.168.0.0 0.0.255.255
+! Configuration d'un nat en mode "surcharge" sur l'interface exposée
+ip nat inside source list 1 interface Serial 0/0 overload
+
+! Exclusion de l'adresses du routeur de la plage DHCP
+ip dhcp excluded-address [IP interne bureau] [IP interne bureau]
+
+!Configuration d'un DHCP avec DNS externe et un bail d'un jour
+ip dhcp pool bureau-telredor
+  network [Réseau interne bureau] [Masque interne bureau]
+  default-router [IP interne bureau]
+  dns-server 1.1.1.1
+  lease 1
+\end{lstlisting}
+
+\seefile{BP-Front.cfg}
+
+\subsection{Accès à internet}
+
+L'acces à internet est mis en place sur 2 routeurs dans la topologie \tlr.
+Cet acces a mis en place par un NAT en mode "surcharge".
+On retrouve ce modèle de configuration sur le routeur d'acces et le routeur \emph{"Front"} de la direction général.
+
+\begin{lstlisting}[caption=Configuration d'un accès internet avec NAT]
+! Définition de l'interface interne comme "inside"
+interface Serial 0/0
+  ip nat inside
+
+! Configuration de l'interface externe
+interface Serial 0/1
+  encapsulation ppp
+  ip nat outside
+  ip address [IP externe] [Masque externe]
+  no shutdown
+
+! Configuration de la route par défaut vers l'interface externe
+ip route 0.0.0.0 0.0.0.0 Serial 0/1
+
+! Configuration du routage ospf et de la distribution de la route par défaut
+router ospf 2
+  network [Réseau interne] [Wildcard interne] area [Numéro de zone ospf]
+  redistribute static subnets
+  default-information originate
+
+! Définition des routes pouvant être traduite via NAT
+access-list 1 permit 10.0.0.0 0.255.255.255
+! Configuration d'un nat en mode "surcharge" sur l'interface exposée
+ip nat inside source list 1 interface Serial 0/1 overload
+\end{lstlisting}
+
+\seefile{ACC-IN.cfg}
+\seefile{DG-Front.cfg}
+
 \end{document}
