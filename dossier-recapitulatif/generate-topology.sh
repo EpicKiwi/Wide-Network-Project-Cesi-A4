@@ -6,6 +6,7 @@ currentIp=""
 currentMask=""
 currentEncapsulation=""
 currentVrf=""
+currentRouting=""
 
 function generatedoc {
 	echo "		\item[$currentInterface] $currentDescription"
@@ -27,6 +28,10 @@ function generatedoc {
 	echo ""
 }
 
+function generaterouting {
+	echo "		\item[Routage] $currentRouting"
+}
+
 for file in $@; do
 
 	NAME=$(basename $file .cfg)
@@ -35,11 +40,11 @@ for file in $@; do
 	echo ""
 	echo "	\begin{description}"
 
-	cat "$file" | sed -n '/interface/,/^\s*$/Ip' | while read line; do
+	cat "$file" | sed -n '/\(interface\|router\)/,/^\s*$/Ip' | while read line; do
 		
 		if ( echo "$line" | grep "^router" -I >> /dev/null ) ; then
-			newRouter=$(echo "$line" | sed "s/^router \(.*\)$/\1/I")
-		
+			newRouting=$(echo "$line" | sed "s/^router \(.*\)$/\1/I")
+			echo "		\item[Routage] $newRouting"
 		elif ( echo "$line" | grep "^interface" -I >> /dev/null ) ; then
 			newInterface=$(echo "$line" | sed "s/^interface \(.*\)$/\1/I")
 			if [ "$currentInterface" != "" ]; then
@@ -64,7 +69,6 @@ for file in $@; do
 		fi
 
 	done;
-
 	echo "	\end{description}"
 	#echo "	\lstinputlisting[caption=Configuration de la machine $NAME]{$file}"
 	#echo "	\clearpage"
