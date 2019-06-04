@@ -63,7 +63,7 @@ for file in $@; do
 	done;
 
 	echo "	\end{description}"
-	echo "	\lstinputlisting[caption=Configuration de la machine $NAME]{$file}"
-	echo "	\clearpage"
+	#echo "	\lstinputlisting[caption=Configuration de la machine $NAME]{$file}"
+	#echo "	\clearpage"
 
 done
