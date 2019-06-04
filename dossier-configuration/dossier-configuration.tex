@@ -81,6 +81,11 @@
 Ce document est un receuil de configuration diverses de l'ensemble de la mission d'harmonisation du réseau de \tlr et de \spr.
 L'ensemble des configuration de la maquette sont disponibles à l'adresse \url{https://github.com/EpicKiwi/Wide-Network-Project-Cesi-A4/tree/master/network}.
 
+\medskip
+
+La maquette donne une idée du réseau et donne les modèles de configuration pour le déploiement sur site.
+Il est aisé de déployer un système de redondance en ajustant la configuration sur sur la base des informations contenues dans ce document et dans le \emph{Dossier récapitulatif} pour garantir un meilleur SLA.
+
 \paragraph{Nomenclature} Les modèles de configuration de ce document contiennent des description entourés de crochets qui doivent être remplacés par les informations nécéssaires.
 Exemple : \texttt{\color{PineGreen}[Adresse interne client]} soit être remplacé par l'adresse IP interne du client.
 
@@ -384,5 +389,71 @@ ip nat inside source list 1 interface Serial 0/1 overload
 
 \seefile{ACC-IN.cfg}
 \seefile{DG-Front.cfg}
+
+\section{Plan de reprise d'activité}
+
+Le plan de reprise d'activité (aussi appelé PRA) est un ensemble de protocols à appliquer en cas de problème sur le réseau.
+Plusieurs scénario ont été prévus et une procédure est données pour guider les intervenant à corriger au plus vite le problème et retrouver un réseau stable le plus vite possible.
+
+\subsection{Rupture du lien avec la direction générale}
+
+En cas de rupture du lien de la direction générale au reste du réseau, les sites ayant besoin d'une liaison urgente avec la direction général peuvent s'y connecter au travers d'une liaison VPN originellement dédié aux nomades.
+
+\bigskip
+
+\begin{enumerate}
+\item Mettre en place un tunnel sur chaque routeur \emph{"Front"} vers la direction général pour les transmission les plus urgentes
+\item Utiliser un routeur spare pour re-connecter la direction général au nuage
+\item Vérifier que les sites peuvent acceder à la direction général par ce routeur de secours
+\item Couper les liens VPN
+\item Analyser et corriger le problème initial
+\item Remettre en place le routeur initial pour reprendre le traffic initial
+\end{enumerate}
+
+\subsection{Rupture du routeur d'accès principal}
+
+En cas de rupture du routeur d'accès principal, l'ensemble du réseau \tlr sera impacté et aucun traffic ne sera possible vers internet excepté la direction général.
+
+\bigskip
+
+\begin{enumerate}
+  \item Définir une nouvelle route par défaut vers le routeur de la direction générale pour redonner accès à l'ensemble des sites au réseau internet
+  \item Mettre en place un routeur spare d'accès pour libèrer le routeur de la direction générale.
+  \item Analyser et corriger le problème initial
+  \item Remplacer le routeur spare par le routeur corrigé et fonctionnel
+  \item Définir la route par défaut vers le routeur initial pour reprendre un traffic standard
+\end{enumerate}
+
+\subsection{Infection d'un site par un logiciel malveillant}
+
+En cas d'infection d'un site par un logiciel malveillant, il est possible que l'infection se propage sur le réseau et il faut limiter les dégats en coupant la connection direct à tout les différents éléments du réseau.
+
+\bigskip
+
+\begin{enumerate}
+  \item Couper la connexion nuagique de tout les sites
+  \item Couper tout les liens VPN
+  \item Mettre en place la connexion internet spare de chaque site pour conserver un accès à internet
+  \item Analyser et nettoyer les machines source de l'infection
+  \item Analyser et nettoyer les machines critiques du réseau (Serveurs, Dirigeants, etc.)
+  \item Analyser et nettoyer les autres machines du réseau
+  \item Reconnecter progressivement les différents sites et vérifier la non-prolifération de la menace
+\end{enumerate}
+
+\subsection{Rupture du lien au nuage}
+
+En cas de rupture du lien au nuage \spr, il faut se détacher de l'ensemble du nuage et utiliser les liens internet spare pour établir des tunnels VPN durant le temps de réparation.
+
+\bigskip
+
+\begin{enumerate}
+  \item Mettre en place la connexion internet spare sur l'ensemble des sites
+  \item Établir un tunnel VPN en direction de la direction générale
+  \item Couper les liens au nuage de l'ensemble des sites
+  \item Utiliser les tunnels VPN pour les futurs échanges
+  \item Analyser et corriger le problème si possible
+  \item Contacter \spr pour une correction en interne
+  \item Apres la remise en place du nuage, rétablir le traffic standard
+\end{enumerate}
 
 \end{document}
